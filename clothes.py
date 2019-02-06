@@ -65,10 +65,3 @@ for i in range(25):
     plt.imshow(imgs[i], cmap=plt.cm.binary)
     plt.xlabel(class_names[pred[i]])
 plt.show()
-
-
-weights = np.exp(np.linspace(-1., 0., window))
-    weights /= weights.sum()
-    a =  np.convolve(values, weights, mode='full')[:len(values)]
-    a[:window] = a[window]
-    return a
