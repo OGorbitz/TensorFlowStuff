@@ -8,17 +8,36 @@ mnist = keras.datasets.mnist
 
 (training_set, training_values), (testing_set, testing_values) = mnist.load_data()
 
+img_rows = 28
+img_cols = 28
+
+if keras.backend.image_data_format == 'channels_first':
+    training_set = training_set.reshape(training_set.shape[0], 1, img_rows, img_cols)
+    testing_set = testing_set.reshape(testing_set.shape[0], 1, img_rows, img_cols)
+    input_shape = (1, img_rows, img_cols)
+else:
+    training_set = training_set.reshape(training_set.shape[0], img_rows, img_cols, 1)
+    testing_set = testing_set.reshape(testing_set.shape[0], img_rows, img_cols, 1)
+    input_shape = (img_rows, img_cols, 1)
 
 training_set = training_set / 255.0
 testing_set = testing_set / 255.0
 
+print('training_set shape:', training_set.shape)
+print(training_set.shape[0], 'train samples')
+print(testing_set.shape[0], 'test samples')
+
+training_set = keras.utils.to_categorical(training_set, 10)
+testing_set = keras.utils.to_categorical(testing_set, 10)
+
 model = keras.Sequential([
-    keras.layers.Conv2D(kernel_size=3, filters=2),
-    keras.layers.MaxPool1D(2),
-    keras.layers.Conv2D(kernel_size=3, filters=2),
-    keras.layers.MaxPool1D(2),
-    keras.layers.Dropout(0.2),
-    keras.layers.Dense(16, activation=tf.nn.relu),
+    keras.layers.Conv2D(kernel_size=(3,3), filters=32, padding="same", activation=tf.nn.relu),
+    keras.layers.MaxPool2D(pool_size=(2,2), strides=2),
+    keras.layers.Conv2D(kernel_size=(3,3), filters=64, padding="same", activation=tf.nn.relu),
+    keras.layers.MaxPool2D(pool_size=(2,2), strides=2),
+    keras.layers.Dropout(0.4),
+    keras.layers.Flatten(),
+    keras.layers.Dense(128, activation=tf.nn.relu),
     keras.layers.Dense(10, activation=tf.nn.sigmoid)
 ])
 
@@ -42,6 +61,7 @@ for i in range(25):
             index = j;
     pred.append(index)
 
+print(pred[0])
 plt.figure(figsize=(10,10))
 plt.suptitle("Predictions:",y=0.99,fontsize=24)
 for i in range(25):

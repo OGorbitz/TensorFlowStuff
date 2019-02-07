@@ -50,12 +50,12 @@ model.compile(optimizer='adam',
               metrics=['accuracy'])
 
 x_val = train_data[:10000]
-partial_x_train=train_data[10000:]
+partial_training_set=train_data[10000:]
 
 y_val = train_labels[:10000]
 partial_y_train=train_labels[10000:]
 
-history = model.fit(partial_x_train,
+history = model.fit(partial_training_set,
                     partial_y_train,
                     epochs=40,
                     batch_size=512,
