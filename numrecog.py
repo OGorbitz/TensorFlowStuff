@@ -6,42 +6,35 @@ import matplotlib.pyplot as plt
 
 mnist = keras.datasets.mnist
 
-(training_set, training_values), (testing_set, testing_values) = mnist.load_data()
+(training_set_i, training_values), (testing_set_i, testing_values) = mnist.load_data()
 
 img_rows = 28
 img_cols = 28
 
 if keras.backend.image_data_format == 'channels_first':
-    training_set = training_set.reshape(training_set.shape[0], 1, img_rows, img_cols)
-    testing_set = testing_set.reshape(testing_set.shape[0], 1, img_rows, img_cols)
+    training_set = training_set_i.reshape(training_set_i.shape[0], 1, img_rows, img_cols)
+    testing_set = testing_set_i.reshape(testing_set_i.shape[0], 1, img_rows, img_cols)
     input_shape = (1, img_rows, img_cols)
 else:
-    training_set = training_set.reshape(training_set.shape[0], img_rows, img_cols, 1)
-    testing_set = testing_set.reshape(testing_set.shape[0], img_rows, img_cols, 1)
+    training_set = training_set_i.reshape(training_set_i.shape[0], img_rows, img_cols, 1)
+    testing_set = testing_set_i.reshape(testing_set_i.shape[0], img_rows, img_cols, 1)
     input_shape = (img_rows, img_cols, 1)
 
 training_set = training_set / 255.0
 testing_set = testing_set / 255.0
 
-print('training_set shape:', training_set.shape)
-print(training_set.shape[0], 'train samples')
-print(testing_set.shape[0], 'test samples')
-
-training_set = keras.utils.to_categorical(training_set, 10)
-testing_set = keras.utils.to_categorical(testing_set, 10)
-
 model = keras.Sequential([
-    keras.layers.Conv2D(kernel_size=(3,3), filters=32, padding="same", activation=tf.nn.relu),
-    keras.layers.MaxPool2D(pool_size=(2,2), strides=2),
+    keras.layers.Conv2D(kernel_size=(3,3), filters=32, activation=tf.nn.relu),
     keras.layers.Conv2D(kernel_size=(3,3), filters=64, padding="same", activation=tf.nn.relu),
     keras.layers.MaxPool2D(pool_size=(2,2), strides=2),
-    keras.layers.Dropout(0.4),
+    keras.layers.Dropout(0.25),
     keras.layers.Flatten(),
     keras.layers.Dense(128, activation=tf.nn.relu),
-    keras.layers.Dense(10, activation=tf.nn.sigmoid)
+    keras.layers.Dropout(0.5),
+    keras.layers.Dense(10, activation=tf.nn.softmax)
 ])
 
-model.compile(optimizer='adam',
+model.compile(optimizer='adadelta',
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
 
@@ -69,6 +62,6 @@ for i in range(25):
     plt.xticks([])
     plt.yticks([])
     plt.grid(False)
-    plt.imshow(imgs[i], cmap=plt.cm.binary)
+    plt.imshow(testing_set_i[num[i]], cmap=plt.cm.binary)
     plt.xlabel(pred[i])
 plt.show()
